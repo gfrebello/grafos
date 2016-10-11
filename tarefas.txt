@@ -1,0 +1,9 @@
+FEITO:
+- Representação de grafos
+
+A FAZER:
+- Entrada (.txt)
+- Saída (.txt)
+- BFS e DFS
+- Componentes conexos
+- Estudos de caso
