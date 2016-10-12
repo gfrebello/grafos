@@ -1,6 +1,6 @@
-# grafos
+# Teoria dos grafos
 
-<Trab. Pratico 1>
+## Trab. Pratico 1
 
 FEITO:
 - Representação de grafos
