@@ -1,5 +1,5 @@
 #include <iostream>
-	#include <fstream>
+#include <fstream>
 #include <vector>
 #include <cstdio>
 
@@ -22,18 +22,24 @@ struct Graph {
     int m_V;
     int m_E;
     bool m_type;
+    vector<int> m_degList;
     vector<AdjList> m_adjArray;
     vector<vector<bool> > m_adjMatrix;
     Graph(int V, bool type);
     AdjListNode* newNode(int dest);
     void addEdge(int src, int dest);
-    float degreeMean();
+    void print();
+    float degMean();
+    float relFrequency(int degree);
 };
  
 Graph::Graph(int V, bool type) {
     m_V = V;
     m_E = 0;
     m_type = type;
+
+    for(int i=0;i<V;i++) m_degList.push_back(0);
+
     if(type == 0) {
         for(int i=0;i<V;i++) {
             AdjList newList;
@@ -56,7 +62,13 @@ AdjListNode* Graph::newNode (int dest) {
 
 void Graph::addEdge(int src, int dest) {
 	m_E++;
+
+	//Add a degree unit for each side of edge
+	m_degList[src]++;
+	m_degList[dest]++;
+
 	if(m_type==0) {
+		//Adjency List
 		AdjListNode* newNode = this->newNode(dest);
 		newNode->next = m_adjArray[src].head;
 		m_adjArray[src].head = newNode;
@@ -66,6 +78,7 @@ void Graph::addEdge(int src, int dest) {
 		newNode->next = m_adjArray[dest].head;
 		m_adjArray[dest].head = newNode;
 	} else {
+		//Adjency Matrix
 		m_adjMatrix[src][dest]=1;
 
 		// Since graph is undirected, add an edge from dest to src also
@@ -73,55 +86,66 @@ void Graph::addEdge(int src, int dest) {
 	}
 }
 
-float Graph::degreeMean() {
+float Graph::degMean() {
      return float(2*m_E/m_V);
 }
 
+float Graph::relFrequency (int degree) {
+    int n=0;
+    for (int i=0;i<m_degList.size();i++)
+        if(m_degList[i]==degree) n++;
+    return float(n)/m_V;
+}
 
-// A utility function to print the adjacenncy list representation of graph
-void printGraph(Graph graph)
-{
-    int v;
-    for (v = 0; v < graph.m_V; ++v)
-    {
-        AdjListNode* pCrawl = graph.m_adjArray[v].head;
-        printf("\n Adjacency list of vertex %d\n head ", v);
-        while (pCrawl!=NULL)
-        {
-            printf("-> %d", pCrawl->dest);
-            pCrawl = pCrawl->next;
-        }
-        printf("\n");
+
+// An utility function to print the adjacenncy list representation of graph
+void Graph::print() {
+    if(m_type==0) {
+	for (int i=0;i<m_V;i++)  {
+	    AdjListNode* pCrawl = m_adjArray[i].head;
+	    cout << endl << "Adjency list of vertex " << i << endl << "head";
+            while (pCrawl!=NULL) {
+	        cout << "-> " << pCrawl->dest+1;
+	        pCrawl = pCrawl->next;
+	    }
+	cout << endl;
+	}
+    } else {
+	for(int i=0;i<m_V;i++) {
+	    for(int j=0;j<m_V;j++) {
+		cout << m_adjMatrix[i][j] << " ";
+	    }
+	cout << endl;
+	}
     }
 }
 
 // Driver program to test above functions
-int main()
-{
+int main(int argc, char** argv) {
 
     ifstream data;
     data.open("data.txt");
 
-    // Define data structure type: 0-Adjency list; 1-Adjency Matrix
-    bool type = 1;
+    bool type;
+    cout << "Define data structure type: 0-Adjency list; 1-Adjency Matrix" << endl;
+    cin >> type;
 
     // Read V from file and create new graph with V vertexes and 0 edges
     int V;
     data >> V;
     Graph graph(V, type);
 
-    cout << "Number of vertexes: " <<  graph.m_V << endl;
-    //cout << graph.m_adjArray[2].head << endl;
-
     //Dynamically create edges
     int v1,v2;
     while (data >> v1 >> v2)
         graph.addEdge(v1-1,v2-1);
 
+    //Print data
+    cout << "Number of vertexes: " <<  graph.m_V << endl;
     cout << "Number of edges: " << graph.m_E << endl;
-    cout << "Degree mean: " << graph.degreeMean() << endl;
-    //cout << graph.m_adjArray[4].head << endl;
-    //printGraph(graph);
-    cout << graph.m_adjMatrix[1][0] << endl;
+    cout << "Degree mean: " << graph.degMean() << endl;
+    for (int i=0;i<graph.m_V;i++) 
+	cout <<  "RelFreq(" << i << "): " << graph.relFrequency(i) << endl;
+    graph.print();
     return 0;
 }
