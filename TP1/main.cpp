@@ -6,6 +6,7 @@
 #include <cstdio>
 #include <algorithm>
 #include <ctime>
+#include <unistd.h>
 
 using namespace std;
  
@@ -124,7 +125,7 @@ vector<int> Graph::BFS(int root) {
 	while(!queue.empty()) {
 		//Dequeue a vertex from queue and print it
 		int s = queue.front();
-		cout << "Vertex " << s+1 << " explored." << endl;
+	//	cout << "Vertex " << s+1 << " explored." << endl;
 		queue.pop();
 
 		if (m_type == 0) {
@@ -132,7 +133,7 @@ vector<int> Graph::BFS(int root) {
 			AdjListNode* pCrawl = m_adjArray[s].head;
 	        while (pCrawl!=NULL) {
 	      		if(visited[pCrawl->dest] == 0) {
-					cout << "Vertex " << pCrawl->dest+1 << " discovered." << endl;
+	//				cout << "Vertex " << pCrawl->dest+1 << " discovered." << endl;
 	      			visited[pCrawl->dest] = 1;
 	      			parent[pCrawl->dest] = s;
 	      			level[pCrawl->dest]=level[s]+1;
@@ -144,7 +145,7 @@ vector<int> Graph::BFS(int root) {
 			//Adjency matrix
 			for(int i=0;i<m_V;i++) {
 				if(m_adjMatrix[s][i] == 1 && visited[i] == 0) {
-					cout << "Vertex " << i+1 << " discovered." << endl;
+	//				cout << "Vertex " << i+1 << " discovered." << endl;
 					visited[i] = 1;
 					parent[i] = s;
 	      			level[i]=level[s]+1;
@@ -154,12 +155,12 @@ vector<int> Graph::BFS(int root) {
 		}
 	}
 
-	for (int i=0;i<parent.size();i++) cout << "Parent of " << i+1 << " = " << parent[i]+1 << "; " << "Level " << level[i] << endl;
+	//for (int i=9;i<50;i=i+10) cout << "Parent of " << i+1 << " = " << parent[i]+1 << "; " << "Level " << level[i] << endl;
 
 	clock_t	end = clock();
 	double elapsed_time = double(end-begin)/CLOCKS_PER_SEC;
 
-	cout << "-------------------" << endl << "Elapsed time: " << elapsed_time << "s" << endl;
+	//cout << "-------------------" << endl << "Elapsed time: " << elapsed_time << "s" << endl;
 
 	return explored;
 }
@@ -185,7 +186,7 @@ vector<bool> Graph::DFS(int root) {
 	while(!stack.empty()) {
 		//Pop a vertex from stack and print it
 		int s = stack.top();
-		cout << "Vertex " << s+1 << " explored." << endl;
+		//cout << "Vertex " << s+1 << " explored." << endl;
 		stack.pop();
 
 		if (m_type == 0) {
@@ -193,7 +194,7 @@ vector<bool> Graph::DFS(int root) {
 			AdjListNode* pCrawl = m_adjArray[s].head;
 	        while (pCrawl!=NULL) {
 	      		if(visited[pCrawl->dest] == 0) {
-					cout << "Vertex " << pCrawl->dest+1 << " discovered." << endl;
+					//cout << "Vertex " << pCrawl->dest+1 << " discovered." << endl;
 	      			visited[pCrawl->dest] = 1;
 	      			parent[pCrawl->dest] = s;
 	      			level[pCrawl->dest]=level[s]+1;
@@ -205,7 +206,7 @@ vector<bool> Graph::DFS(int root) {
 			//Adjency matrix
 			for(int i=0;i<m_V;i++) {
 				if(m_adjMatrix[s][i] == 1 && visited[i] == 0) {
-					cout << "Vertex " << i+1 << " discovered." << endl;
+					//cout << "Vertex " << i+1 << " discovered." << endl;
 					visited[i] = 1;
 					parent[i] = s;
 	      			level[i]=level[s]+1;
@@ -215,12 +216,12 @@ vector<bool> Graph::DFS(int root) {
 		}
 	}
 
-	for (int i=0;i<parent.size();i++) cout << "Parent of " << i+1 << " = " << parent[i]+1 << "; " << "Level " << level[i] << endl;
+	//for (int i=9;i<50;i=i+10) cout << "Parent of " << i+1 << " = " << parent[i]+1 << "; " << "Level " << level[i] << endl;
 
 	clock_t	end = clock();
 	double elapsed_time = double(end-begin)/CLOCKS_PER_SEC;
 
-	cout << "-------------------" << endl << "Elapsed time: " << elapsed_time << "s" << endl;
+	//cout << "-------------------" << endl << "Elapsed time: " << elapsed_time << "s" << endl;
 
 	return visited;
 
@@ -254,8 +255,8 @@ void Graph::CC () {
 	cout << "TOTAL: " << CC.size() << endl;
 	for(int j=0;j<CC.size();j++) {
 		cout << j <<": {";
-		for(int k=0;k<CC[j].size();k++)
-			cout << "," << CC[j][k]+1;
+		//for(int k=0;k<CC[j].size();k++)
+		//	cout << "," << CC[j][k]+1;
 		cout << "} Size = " << CC[j].size() << endl;
 	}
 
@@ -296,7 +297,7 @@ void Graph::print() {
 int main(int argc, char** argv) {
 
     ifstream data;
-    data.open("data.txt");
+    data.open("dblp.txt");
 
     bool type;
     cout << "Define data structure type: 0-Adjency list; 1-Adjency Matrix" << endl;
@@ -312,15 +313,36 @@ int main(int argc, char** argv) {
     while (data >> v1 >> v2)
         graph.addEdge(v1-1,v2-1);
 
+    cout << "edges added" << endl;
+    //pause();
+
     //Print data
     cout << "Number of vertexes: " <<  graph.m_V << endl;
     cout << "Number of edges: " << graph.m_E << endl;
     cout << "Degree mean: " << graph.degMean() << endl;
-    for (int i=0;i<graph.m_V;i++) 
-	cout <<  "RelFreq(" << i << "): " << graph.relFrequency(i) << endl;
-    graph.print();
+    //for (int i=0;i<graph.m_V;i++) 
+		//cout <<  "RelFreq(" << i << "): " << graph.relFrequency(i) << endl;
+    //graph.print();
+	clock_t begin = clock();
+
+	graph.CC();
+/*
     graph.BFS(1);
-    graph.DFS(1);
-    graph.CC();
+    graph.BFS(2);
+    graph.BFS(3);
+    graph.BFS(4);
+    graph.BFS(5);*/
+/*    graph.DFS(6);
+    graph.DFS(7);
+    graph.DFS(8);
+    graph.DFS(9);
+    graph.DFS(10);
+*/
+	clock_t	end = clock();
+	double elapsed_time = double(end-begin)/CLOCKS_PER_SEC;
+	cout << "-------------------" << endl << "TOTAL elapsed time: " << elapsed_time << "s" << endl;
+
+    //graph.DFS(1);
+    //graph.CC();
     return 0;
 }
