@@ -1,10 +1,13 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <queue>
+#include <stack>
 #include <cstdio>
 
 using namespace std;
  
+
 // A structure to represent an adjacency list node
 struct AdjListNode {
     int dest;
@@ -28,6 +31,9 @@ struct Graph {
     Graph(int V, bool type);
     AdjListNode* newNode(int dest);
     void addEdge(int src, int dest);
+    vector<int> BFS(int root);
+    vector<int> DFS(int root);
+    void CC();
     void print();
     float degMean();
     float relFrequency(int degree);
@@ -90,6 +96,129 @@ float Graph::degMean() {
      return float(2*m_E/m_V);
 }
 
+vector<int> Graph::BFS(int root) {
+
+	int src = root-1;
+	// Initialize vectors and queue
+	vector<bool> visited(m_V,0);
+	vector<int> parent(m_V,-1);
+	vector<int> level(m_V,0);
+	vector<int> explored;
+	queue<int> queue;
+
+	//Mark src as visited and add it to the queue
+	visited[src] = 1;
+	level[src] = 0;
+	queue.push(src);
+
+	while(!queue.empty()) {
+		//Dequeue a vertex from queue and print it
+		int s = queue.front();
+		cout << "Vertex " << s+1 << " explored." << endl;
+		queue.pop();
+
+		if (m_type == 0) {
+			// Adjency list
+			AdjListNode* pCrawl = m_adjArray[s].head;
+	        while (pCrawl!=NULL) {
+	      		if(visited[pCrawl->dest] == 0) {
+					cout << "Vertex " << pCrawl->dest+1 << " discovered." << endl;
+	      			visited[pCrawl->dest] = 1;
+	      			parent[pCrawl->dest] = s;
+	      			level[pCrawl->dest]=level[s]+1;
+	      			queue.push(pCrawl->dest);
+	      		} 
+		        pCrawl = pCrawl->next;
+		    }	
+		} else {
+			//Adjency matrix
+			for(int i=0;i<m_V;i++) {
+				if(m_adjMatrix[s][i] == 1 && visited[i] == 0) {
+					cout << "Vertex " << i+1 << " discovered." << endl;
+					visited[i] = 1;
+					parent[i] = s;
+	      			level[i]=level[s]+1;
+					queue.push(i);
+				}	
+			}
+		}
+	}
+
+	for (int i=0;i<parent.size();i++) cout << "Parent of " << i+1 << " = " << parent[i]+1 << endl << "Level " << level[i] << endl;
+
+	return explored;
+}
+
+vector<int> Graph::DFS(int root) {
+	// Prints parent and level of each vertex and returns a vector of all the visited vertexes
+	int src = root-1;
+	// Initialize vectors and stack
+	vector<bool> visited(m_V,0);
+	vector<int> parent(m_V,-1);
+	vector<int> level(m_V,0);
+	vector<int> explored;
+	stack<int> stack;
+
+	//Mark src as visited and add it to the queue
+	visited[src] = 1;
+	level[src] = 0;
+	stack.push(src);
+
+	while(!stack.empty()) {
+		//Pop a vertex from stack and print it
+		int s = stack.top();
+		cout << "Vertex " << s+1 << " explored." << endl;
+		stack.pop();
+		explored.push_back(s);
+
+		if (m_type == 0) {
+			// Adjency list
+			AdjListNode* pCrawl = m_adjArray[s].head;
+	        while (pCrawl!=NULL) {
+	      		if(visited[pCrawl->dest] == 0) {
+					cout << "Vertex " << pCrawl->dest+1 << " discovered." << endl;
+	      			visited[pCrawl->dest] = 1;
+	      			parent[pCrawl->dest] = s;
+	      			level[pCrawl->dest]=level[s]+1;
+	      			stack.push(pCrawl->dest);
+	      		} 
+		        pCrawl = pCrawl->next;
+		    }	
+		} else {
+			//Adjency matrix
+			for(int i=0;i<m_V;i++) {
+				if(m_adjMatrix[s][i] == 1 && visited[i] == 0) {
+					cout << "Vertex " << i+1 << " discovered." << endl;
+					visited[i] = 1;
+					parent[i] = s;
+	      			level[i]=level[s]+1;
+					stack.push(i);
+				}	
+			}
+		}
+	}
+
+	for (int i=0;i<parent.size();i++) cout << "Parent of " << i+1 << " = " << parent[i]+1 << endl << "Level " << level[i] << endl;
+
+	return explored;
+}
+
+void Graph::CC () {
+	//Initialize matrix of connected components
+	vector<vector<int> > CC;
+	explored = DFS(5);
+
+	for (int i=0;i<explored.size();++i)
+	{
+		cout << explored[i] << endl;
+	}
+
+	//rodar BFS em vértice aleatório
+	//comparar vértices encontrados 
+	// rodar BFS em vértice aleatório não encontrado
+}
+
+
 float Graph::relFrequency (int degree) {
     int n=0;
     for (int i=0;i<m_degList.size();i++)
@@ -101,22 +230,22 @@ float Graph::relFrequency (int degree) {
 // An utility function to print the adjacenncy list representation of graph
 void Graph::print() {
     if(m_type==0) {
-	for (int i=0;i<m_V;i++)  {
-	    AdjListNode* pCrawl = m_adjArray[i].head;
-	    cout << endl << "Adjency list of vertex " << i << endl << "head";
-            while (pCrawl!=NULL) {
-	        cout << "-> " << pCrawl->dest+1;
-	        pCrawl = pCrawl->next;
-	    }
-	cout << endl;
-	}
+		for (int i=0;i<m_V;i++)  {
+		    AdjListNode* pCrawl = m_adjArray[i].head;
+		    cout << endl << "Adjency list of vertex " << i << endl << "head";
+	        while (pCrawl!=NULL) {
+		        cout << "-> " << pCrawl->dest+1;
+		        pCrawl = pCrawl->next;
+		    }
+		cout << endl;
+		}
     } else {
-	for(int i=0;i<m_V;i++) {
-	    for(int j=0;j<m_V;j++) {
-		cout << m_adjMatrix[i][j] << " ";
-	    }
-	cout << endl;
-	}
+		for(int i=0;i<m_V;i++) {
+		    for(int j=0;j<m_V;j++) {
+				cout << m_adjMatrix[i][j] << " ";
+		    }
+		cout << endl;
+		}
     }
 }
 
@@ -147,5 +276,8 @@ int main(int argc, char** argv) {
     for (int i=0;i<graph.m_V;i++) 
 	cout <<  "RelFreq(" << i << "): " << graph.relFrequency(i) << endl;
     graph.print();
+    graph.BFS(1);
+    graph.DFS(1);
+    graph.CC();
     return 0;
 }
