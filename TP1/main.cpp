@@ -4,9 +4,15 @@
 #include <queue>
 #include <stack>
 #include <cstdio>
+#include <algorithm>
+#include <ctime>
 
 using namespace std;
  
+bool less_vectors(const vector<int>& a, const vector<int>& b) {
+	return a.size() > b.size();
+}
+
 
 // A structure to represent an adjacency list node
 struct AdjListNode {
@@ -32,7 +38,7 @@ struct Graph {
     AdjListNode* newNode(int dest);
     void addEdge(int src, int dest);
     vector<int> BFS(int root);
-    vector<int> DFS(int root);
+    vector<bool> DFS(int root);
     void CC();
     void print();
     float degMean();
@@ -98,11 +104,13 @@ float Graph::degMean() {
 
 vector<int> Graph::BFS(int root) {
 
+	clock_t begin = clock();
+
 	int src = root-1;
 	// Initialize vectors and queue
 	vector<bool> visited(m_V,0);
 	vector<int> parent(m_V,-1);
-	vector<int> level(m_V,0);
+	vector<int> level(m_V,-1);
 	vector<int> explored;
 	queue<int> queue;
 
@@ -110,6 +118,8 @@ vector<int> Graph::BFS(int root) {
 	visited[src] = 1;
 	level[src] = 0;
 	queue.push(src);
+
+	cout << endl<< "BFS(" << root << ") Running..." << endl;
 
 	while(!queue.empty()) {
 		//Dequeue a vertex from queue and print it
@@ -144,19 +154,26 @@ vector<int> Graph::BFS(int root) {
 		}
 	}
 
-	for (int i=0;i<parent.size();i++) cout << "Parent of " << i+1 << " = " << parent[i]+1 << endl << "Level " << level[i] << endl;
+	for (int i=0;i<parent.size();i++) cout << "Parent of " << i+1 << " = " << parent[i]+1 << "; " << "Level " << level[i] << endl;
+
+	clock_t	end = clock();
+	double elapsed_time = double(end-begin)/CLOCKS_PER_SEC;
+
+	cout << "-------------------" << endl << "Elapsed time: " << elapsed_time << "s" << endl;
 
 	return explored;
 }
 
-vector<int> Graph::DFS(int root) {
+vector<bool> Graph::DFS(int root) {
 	// Prints parent and level of each vertex and returns a vector of all the visited vertexes
+
+	clock_t begin = clock();
+
 	int src = root-1;
 	// Initialize vectors and stack
 	vector<bool> visited(m_V,0);
 	vector<int> parent(m_V,-1);
-	vector<int> level(m_V,0);
-	vector<int> explored;
+	vector<int> level(m_V,-1);
 	stack<int> stack;
 
 	//Mark src as visited and add it to the queue
@@ -164,12 +181,12 @@ vector<int> Graph::DFS(int root) {
 	level[src] = 0;
 	stack.push(src);
 
+	cout << endl<< "DFS(" << root << ") Running..." << endl;
 	while(!stack.empty()) {
 		//Pop a vertex from stack and print it
 		int s = stack.top();
 		cout << "Vertex " << s+1 << " explored." << endl;
 		stack.pop();
-		explored.push_back(s);
 
 		if (m_type == 0) {
 			// Adjency list
@@ -198,24 +215,50 @@ vector<int> Graph::DFS(int root) {
 		}
 	}
 
-	for (int i=0;i<parent.size();i++) cout << "Parent of " << i+1 << " = " << parent[i]+1 << endl << "Level " << level[i] << endl;
+	for (int i=0;i<parent.size();i++) cout << "Parent of " << i+1 << " = " << parent[i]+1 << "; " << "Level " << level[i] << endl;
 
-	return explored;
+	clock_t	end = clock();
+	double elapsed_time = double(end-begin)/CLOCKS_PER_SEC;
+
+	cout << "-------------------" << endl << "Elapsed time: " << elapsed_time << "s" << endl;
+
+	return visited;
+
 }
 
 void Graph::CC () {
 	//Initialize matrix of connected components
+	vector<bool> explored(m_V,0);
 	vector<vector<int> > CC;
-	explored = DFS(5);
+	vector<bool>::iterator it;
 
-	for (int i=0;i<explored.size();++i)
-	{
-		cout << explored[i] << endl;
+	it = find(explored.begin(),explored.end(),0);
+	
+	while(it!=explored.end()) {
+		vector<bool> visited = DFS(it-explored.begin()+1);
+		vector<int> buffer;
+
+		for (int j=0;j<visited.size();j++) {
+			if(visited[j] == 1) {
+				buffer.push_back(j);
+				explored[j] = 1;
+			}
+		}
+		CC.push_back(buffer);
+		it = find(explored.begin(),explored.end(),0);
 	}
 
-	//rodar BFS em vértice aleatório
-	//comparar vértices encontrados 
-	// rodar BFS em vértice aleatório não encontrado
+	sort(CC.begin(),CC.end(),less_vectors);
+
+	cout << endl << "--------COMPONENTS--------" << endl;
+	cout << "TOTAL: " << CC.size() << endl;
+	for(int j=0;j<CC.size();j++) {
+		cout << j <<": {";
+		for(int k=0;k<CC[j].size();k++)
+			cout << "," << CC[j][k]+1;
+		cout << "} Size = " << CC[j].size() << endl;
+	}
+
 }
 
 
