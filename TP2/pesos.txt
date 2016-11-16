@@ -1,0 +1,35 @@
+grafo_1
+Distância Média: 10.3144
+Peso Total: 3856
+Tempo de Execução 1: 0.002857s
+Tempo de Execução 2: 0.006190s
+
+grafo_2
+Distância Média:
+Peso Total: 31663
+Tempo de Execução 1: 0.056410s
+Tempo de Execução 2: 0.129596s
+
+grafo_3
+Distância Média:
+Peso Total: 312289
+Tempo de Execução 1: 1.3393s
+Tempo de Execução 2: 2.4156s
+
+grafo_4
+Distância Média:
+Peso Total: 7668215
+Tempo de Execução 1: 1.861812s
+Tempo de Execução 2: 2.559590s
+
+grafo_5
+Distância Média:
+Peso Total: 79992951
+Tempo de Execução 1: 15.14155s
+Tempo de Execução 2: 20.48410s
+
+rede_colaboracao
+Distância Média:
+Peso Total: 1320291
+Tempo de Execução 1: 1.748539s
+Tempo de Execução 2: 4.112620s
