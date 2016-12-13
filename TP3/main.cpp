@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <vector>
 #include <math.h>
+
 using namespace std;
 
 struct Vertex {
@@ -11,110 +12,26 @@ struct Vertex {
     int index;
 };
 
+struct Tour {
+    vector<Vertex> tour;
+    double t_cost;
+};
+
+double calcDist(Vertex v1, Vertex v2) {
+    return sqrt((v1.x-v2.x)*(v1.x-v2.x) + (v1.y-v2.y)*(v1.y-v2.y));
+}
+
+double calcTotalCost (Tour t) {
+    double r = 0;
+    for(int i=0;i<t.tour.size()-1;i++)
+        r+=calcDist(t.tour[i],t.tour[i+1]);
+    return r;
+}
+
 bool operator== (const Vertex &v,const int &a) {
     return v.index == a;
 } 
 
-float calcDist(Vertex v1, Vertex v2) {
-    return sqrt((v1.x-v2.x)*(v1.x-v2.x) + (v1.y-v2.y)*(v1.y-v2.y));
-}
-
-struct Edge {
-    Vertex v1;
-    Vertex v2;
-    float dist;
-    Edge() {}
-    Edge(Vertex a, Vertex b) {
-        v1 = a;
-        v2 = b;
-        dist = calcDist(a,b);
-    }};
-
-float calcDist(Edge e) {
-    return sqrt((e.v1.x-e.v2.x)*(e.v1.x-e.v2.x) + (e.v1.y-e.v2.y)*(e.v1.y-e.v2.y));
-}
-
-struct Tour {
-    vector<Vertex> tour;
-    float t_cost;
-};
-
-struct SwapContainer {
-    vector<Edge> new_edges;
-    float cost_diff;
-};
-
-// Auxiliary function for calculating swap with minimum cost out of all possible swaps for a given iteration of 3-opt
-SwapContainer ThreeOPTSwap(Edge e1, Edge e2, Edge e3){
-    SwapContainer r;
-    float orig_cost = calcDist(e1) + calcDist(e2) + calcDist(e3);
-    vector<float> l_costs;
-    
-    l_costs.push_back(calcDist(e1.v1,e2.v1) + calcDist(e1.v2,e3.v1) + calcDist(e2.v2,e3.v2));
-    l_costs.push_back(calcDist(e1.v1,e2.v1) + calcDist(e1.v2,e3.v2) + calcDist(e2.v2,e3.v1));
-    l_costs.push_back(calcDist(e1.v1,e2.v2) + calcDist(e1.v2,e3.v1) + calcDist(e2.v1,e3.v2));
-    l_costs.push_back(calcDist(e1.v1,e2.v2) + calcDist(e1.v2,e3.v2) + calcDist(e2.v1,e3.v1));
-    l_costs.push_back(calcDist(e1.v1,e3.v1) + calcDist(e1.v2,e2.v1) + calcDist(e2.v2,e3.v2));
-    l_costs.push_back(calcDist(e1.v1,e3.v1) + calcDist(e1.v2,e2.v2) + calcDist(e2.v1,e3.v2));
-    l_costs.push_back(calcDist(e1.v1,e3.v2) + calcDist(e1.v2,e2.v1) + calcDist(e2.v2,e3.v1));
-    l_costs.push_back(calcDist(e1.v1,e3.v2) + calcDist(e1.v2,e2.v2) + calcDist(e2.v1,e3.v1));
-    
-    vector<float>::iterator it = min_element(l_costs.begin(), l_costs.end());
-    r.cost_diff = orig_cost - *it;
-    
-    if(r.cost_diff <=0) {
-        r.new_edges.push_back(e1);
-        r.new_edges.push_back(e2);
-        r.new_edges.push_back(e3);
-        return r;
-    }
-    int min_cost_index = distance(l_costs.begin(),it);
-    cout << "Diff cost: " << min_cost_index << endl;
-    
-    switch (min_cost_index) {
-        case 0:
-            r.new_edges.push_back(Edge(e1.v1,e2.v1)); 
-            r.new_edges.push_back(Edge(e1.v2,e3.v1)); 
-            r.new_edges.push_back(Edge(e2.v2,e3.v2));
-            break;
-        case 1:
-            r.new_edges.push_back(Edge(e1.v1,e2.v1)); 
-            r.new_edges.push_back(Edge(e1.v2,e3.v2)); 
-            r.new_edges.push_back(Edge(e2.v2,e3.v1)); 
-            break;
-        case 2:
-            r.new_edges.push_back(Edge(e1.v1,e2.v2)); 
-            r.new_edges.push_back(Edge(e1.v2,e3.v1)); 
-            r.new_edges.push_back(Edge(e2.v1,e3.v2)); 
-            break;
-        case 3:
-            r.new_edges.push_back(Edge(e1.v1,e2.v2)); 
-            r.new_edges.push_back(Edge(e1.v2,e3.v2)); 
-            r.new_edges.push_back(Edge(e2.v1,e3.v1)); 
-            break;
-        case 4:
-            r.new_edges.push_back(Edge(e1.v1,e3.v1)); 
-            r.new_edges.push_back(Edge(e1.v2,e2.v1)); 
-            r.new_edges.push_back(Edge(e2.v2,e3.v2)); 
-            break;
-        case 5:
-            r.new_edges.push_back(Edge(e1.v1,e3.v2)); 
-            r.new_edges.push_back(Edge(e1.v2,e2.v2)); 
-            r.new_edges.push_back(Edge(e2.v1,e3.v2)); 
-            break;
-        case 6:
-            r.new_edges.push_back(Edge(e1.v1,e3.v2)); 
-            r.new_edges.push_back(Edge(e1.v2,e2.v1)); 
-            r.new_edges.push_back(Edge(e2.v2,e3.v1)); 
-            break;
-        case 7:
-            r.new_edges.push_back(Edge(e1.v1,e3.v2)); 
-            r.new_edges.push_back(Edge(e1.v2,e2.v2)); 
-            r.new_edges.push_back(Edge(e2.v1,e3.v1)); 
-            break;
-}
-    return r;
-}
 
 // Nearest-neighbour algorithm for defining initial tour to be optimized
 Tour NearestNeighbour(vector<Vertex> v, int root) {
@@ -127,7 +44,7 @@ Tour NearestNeighbour(vector<Vertex> v, int root) {
     r.t_cost = 0;
 
     while(!unvisited.empty()) {
-        float min_dist = 1000000000;
+        double min_dist = 1000000000;
         Vertex cur_vertex = v[v_index];
         Vertex next_vertex;
 
@@ -135,7 +52,7 @@ Tour NearestNeighbour(vector<Vertex> v, int root) {
         if (unvisited.size() == 0) break;
 
         for(int i=0; i<unvisited.size(); i++) {
-            float dist = calcDist(cur_vertex,unvisited[i]);
+            double dist = calcDist(cur_vertex,unvisited[i]);
             if (dist < min_dist) {
                 min_dist = dist;
                 next_vertex = unvisited[i];
@@ -150,45 +67,66 @@ Tour NearestNeighbour(vector<Vertex> v, int root) {
     return r;    
 }
 
-// Main 3-opt algorithm implementation
-Tour ThreeOPT (Tour t) {
-    Tour r;
-    vector<Edge> edges;
-
-    r.t_cost = t.t_cost;
-    
-    cout << "Original cost (NN): " << t.t_cost << endl;
-
-    for(int i=0;i<t.tour.size()-1;i++) {
-        edges.push_back(Edge(t.tour[i],t.tour[i+1]));
-        cout << "Edge[" << i << "]: " << edges[i].v1.index << " " << edges[i].v2.index << endl;
-    }   
-    
-    SwapContainer sc = ThreeOPTSwap(edges[0],edges[2],edges[4]);
-    edges[0] = sc.new_edges[0];
-    edges[2] = sc.new_edges[1];
-    edges[4] = sc.new_edges[2];
-    r.t_cost-= sc.cost_diff;
-
-    cout << "New cost (3-opt): " << r.t_cost << endl;
-
-    for(int i=0;i<edges.size();i++) {
-        cout << "Edge[" << i << "]: " << edges[i].v1.index << " " << edges[i].v2.index << endl;
-    }    
-    
+// Auxiliary function for defining best NearestNeighhbour tour
+Tour BestNearestNeighbour (vector<Vertex> v) {
+    Tour r, new_t;
+    double best_cost = 1e10;
+    for(int i=0;i<v.size();i++) {
+        new_t = NearestNeighbour(v,i);
+        if (new_t.t_cost < best_cost) {
+            r = new_t;
+            best_cost = new_t.t_cost;
+        }
+    }
+    //cout << r.t_cost << endl;
     return r;
 }
 
-//
-//
-//For i=0,...,m{
-//    for j=0,...,m-1 {
-//        for k=0,...,m-2 {
-//            calc-3opt(i,j,k);            
-//        }
-//    }
-//}
+// Auxiliary function for performing 2-opt swaps
+Tour TwoOPTSwap(Tour t, int p1, int p2) {
+    Tour r;
+    for(int i=0;i<p1;i++)
+        r.tour.push_back(t.tour[i]);
+    for(int i=p2;i>=p1;i--)
+        r.tour.push_back(t.tour[i]);
+    for(int i=p2+1;i<t.tour.size();i++)
+        r.tour.push_back(t.tour[i]);
+    r.t_cost = calcTotalCost(r);
+    return r;
+}
 
+// Main 2-opt algorithm implementation
+Tour TwoOPT (Tour t) {
+    Tour r, cur_t;
+    cur_t = t;
+    
+    cout << "Original cost (Best NN): " << t.t_cost << endl;
+    
+//    for(int i=0;i<t.tour.size()-1;i++) {
+//        cout << "Edge[" << i << "]: " << t.tour[i].index << " " << t.tour[i+1].index << endl;
+//    }   
+    
+    double best_cost = calcTotalCost(t);
+    double cost_diff = best_cost;
+    while(cost_diff > 0) {
+        for(int i=1;i<t.tour.size()-2;i++)
+            for(int j=i+1;j<t.tour.size()-1;j++) {
+                Tour new_t = TwoOPTSwap(cur_t,i,j);
+                if (new_t.t_cost < best_cost) {
+                    cur_t = new_t;
+                    best_cost = new_t.t_cost;
+                }
+            }
+        cost_diff-=best_cost;
+        //cout << cost_diff << endl;
+    }
+    cout << "Cost after 2-opt: " << best_cost << endl;
+    cout << "Tour after 2-opt:" << endl;
+
+    for(int i=0;i<cur_t.tour.size();i++)
+        cout << cur_t.tour[i].index+1 << " ";
+    return r;        
+}
 
 int main(int argc, char** argv) {
     
@@ -211,14 +149,10 @@ int main(int argc, char** argv) {
     
     data.close();
     
-    Tour t = NearestNeighbour(V,0);
+    Tour t = BestNearestNeighbour(V);
     
-
-    ThreeOPT(t);
-    
-    cout << "Tour: " << endl;
-    for(int i=0;i<t.tour.size();i++)
-        cout << t.tour[i].index << ",";
+    t = TwoOPT(t);
+   
     return 0;
 }
 
