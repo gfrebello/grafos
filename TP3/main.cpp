@@ -1,5 +1,3 @@
-// Falta implementar o loop do 3-opt e consertar o swap (está aumentando o custo)
-
 #include <iostream>
 #include <fstream>
 #include <algorithm>
